@@ -72,7 +72,7 @@ class ImageGenerator:
             # same as 'for i in range(len(list))'
 
             for x in images_data:
-                img = np.load(self.file_path + '/' + x + '.npy')
+                img = np.load(self.file_path + x + '.npy')
                 img = skimage.transform.resize(img, self.image_size)
                 img = self.augment(img)
                 ims.append(img)
