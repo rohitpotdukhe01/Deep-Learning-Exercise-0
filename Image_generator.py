@@ -3,15 +3,10 @@
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 import json
-import os.path
 import collections
-
-import cv2 as cv
 import matplotlib.pyplot as plt
 import random
 import numpy as np
-from PIL import Image
-import matplotlib.image as pimg
 
 h = 0
 class_dict = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog',
@@ -49,5 +44,8 @@ for item in split_dict(data, 3, h):
 
     print(item)
     h = h + 3
+
+
+
 
 
