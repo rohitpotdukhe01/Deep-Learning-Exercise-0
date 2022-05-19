@@ -1,5 +1,7 @@
 import json
 import collections
+import os
+
 import matplotlib.pyplot as plt
 import random
 import numpy as np
@@ -23,7 +25,8 @@ class ImageGenerator:
         # Also depending on the size of your data-set you can consider loading all images into memory here already.
         # The labels are stored in json format and can be directly loaded as dictionary.
         # Note that the file names correspond to the dicts of the label dictionary.
-
+        self.batch_epoch = 0
+        self.index=0
         self.file_path = file_path
         self.label_path = label_path
         self.batch_size = batch_size
@@ -38,51 +41,56 @@ class ImageGenerator:
         # TODO: implement constructor
 
     def next(self):
-        # This function creates a batch of images and corresponding labels and returns them.
-        # In this context a "batch" of images just means a bunch, say 10 images that are forwarded at once.
-        # Note that your amount of total data might not be divisible without remainder with the batch_size.
-        # Think about how to handle such cases
-        # TODO: implement next method
         with open(self.label_path) as f:
-            data1 = json.load(f)
-        count = len(data1)
+            data = json.load(f)
+            print(data)
+        pth, dirs, files = next(os.walk(self.file_path))
+        count = len(files)
         ims = []
         lbl = []
-        if (self.batch_epoch >= count - 1):
+        if self.index >= count - 1:
             self.current_ep += 1
             self.batch_epoch = 0
-        h = self.batch_epoch
-
+        '''
         def split_dict(d, n, h):
             keys = list(d.keys())
             for i in range(0, 1):
+                if self.shuffle:
+                            random.shuffle(keys)
+                if self.batch_epoch > 0
                 yield {k: d[k] for k in keys[h:h + n]}
-
-            # data =sorted(data1.items(), key=lambda x: x[1])
-
+        '''
         if self.shuffle:
-            data = collections.OrderedDict(sorted(data1.items()))
+            data = collections.OrderedDict(sorted(data.items()))
         else:
-            data = collections.OrderedDict(data1.items())
+            data = collections.OrderedDict(data.items())
+        split_data = []
+        keys = list(data.keys())
+        temp=self.index
+        for j in range(self.index, self.batch_size+self.index):
+            if temp > count-1:
+                temp = 0
+                self.batch_epoch += 1
+            if self.shuffle:
+                random.shuffle(keys)
+            split_data.append({keys[temp]: data[keys[temp]]})
+            print(temp)
+            temp += 1
 
-        for item in split_dict(data, self.batch_size, h):
+
+        for item in split_data:
             images_data = list(item.keys())
             labels_data = list(item.values())
-            #length = len(images_data)
-            # Iterating the index
-            # same as 'for i in range(len(list))'
-
             for x in images_data:
                 img = np.load(self.file_path + x + '.npy')
                 img = skimage.transform.resize(img, self.image_size)
                 img = self.augment(img)
                 ims.append(img)
                 index = images_data.index(x)
-                lbl.append(self.class_name(labels_data[index]))
-            h += 1
-            images = np.array(ims)
-            labels = np.array(lbl)
-            self.batch_epoch += self.batch_size
+                lbl.append(labels_data[index])
+        images = np.array(ims)
+        labels = np.array(lbl)
+        self.index += self.batch_size
         return images, labels
 
     def augment(self, img):
@@ -91,7 +99,7 @@ class ImageGenerator:
         # TODO: implement augmentation function
         if self.mirroring and random.randint(0, 1) == 0:
             img = np.flip(img, 1)
-        if self.rotation and random.randint(0, 1) == 1:
+        if self.rotation and random.randint(0, 1) == 0:
             img = np.rot90(img, random.randint(0, 3))
 
         return img
@@ -114,7 +122,7 @@ class ImageGenerator:
         cols = 3
         titles = []
         for y in batch[1]:
-            titles.append(y)
+            titles.append(self.class_name(y))
         fig = make_subplots(rows=rows, cols=cols, subplot_titles=titles)
 
         i = j = 1
