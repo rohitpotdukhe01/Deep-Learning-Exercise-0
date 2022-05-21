@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 import tabulate
+import pattern
+import generator
 import argparse
 
 ID = 0  # identifier for dispatcher
